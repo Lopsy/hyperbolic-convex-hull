@@ -1,14 +1,13 @@
 
 from hyperbolic_turtle import Turtle, Point, tau, distance
 from scipy.optimize import minimize
-from collections import namedtuple
 
 
     
 def demo():
     P,Q,R = equilateralTriangle(1)
-    X = (0,0)
     fP, fQ, fR = (P,0), (Q,1), (R,1) # given function points
+    X = (0,0) # point we're trying to get an upper bound at
     print(f"Trying to get an upper bound at {X}...")
     point, bound = tryUpperBound([[fP,fQ],fR], X)
     print(f"Simple tree: upper bound {bound} at {point}")
