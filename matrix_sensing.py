@@ -2,6 +2,8 @@
 import tensorflow as tf
 import numpy as np
 
+import cvxpy as cp
+
 # Some friendly values for testing purposes
 U_start = np.array([[0.01,0.05,0.06],
                     [0.09,0.04,0.03],
@@ -57,6 +59,34 @@ def MinimizeNuclearNorm(U_start, As, ys):
 
 #################
 
+def ExactMinNuclearNorm(As,ys):
+    n = np.shape(As[0])[0]
+    return SimpleSdp(As,ys,np.eye(n))
+
+
+################
+
+def SimpleSdp(A, b, C):
+    
+    n = np.shape(C)[0]
+    
+    X = cp.Variable((n,n), symmetric=True)
+    constraints = [X >> 0]
+    for i in range(len(A)):
+        constraints += [cp.trace(A[i] @ X) == b[i]]
+
+    prob = cp.Problem(cp.Minimize(cp.trace(C @ X)),
+                  constraints)
+
+    prob.solve()
+    
+    return prob.value
+
+
+####################
+
+
+
 def testSquaredError():
     X = np.array([[1.0,0.0],
                   [1.0,-1.0]])
@@ -69,3 +99,6 @@ def testSquaredError():
     ys = np.array([0.0, 2.0, -3.0])
     observations = (As, ys)
     assert SquaredError(X, observations) < 1e-9
+
+
+U_new = GradientFlow(U_start, (As, ys), 10000, learningRate=1e-4)
