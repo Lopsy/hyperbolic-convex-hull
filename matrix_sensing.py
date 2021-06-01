@@ -4,6 +4,10 @@ import numpy as np
 
 import cvxpy as cp
 
+import os
+#avoids some annoying warning message for me
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 # Some friendly values for testing purposes
 U_start = np.array([[0.01,0.05,0.06],
                     [0.09,0.04,0.03],
@@ -21,11 +25,13 @@ ys = np.array([1.0, 2.0, -1.0])
 
 # try: U_new = GradientFlow(U_start, (As, ys), 10000, learningRate=1e-4)
 
-def GradientFlow(U_start, As, ys, numSteps, learningRate=1e-4):
+def GradientFlow(U_start, As, ys, numSteps, learningRate=1e-4,verbose=False):
     As, ys = tf.constant(As), tf.constant(ys)
     U = tf.Variable(U_start)
     for i in range(numSteps):
         DoGradientStep(U, As, ys, learningRate)
+        if verbose:
+            #print("hi")
     return U
 
 @tf.function
@@ -99,6 +105,11 @@ def testSquaredError():
     ys = np.array([0.0, 2.0, -3.0])
     observations = (As, ys)
     assert SquaredError(X, observations) < 1e-9
+print("hello")
+
+###################
 
 
-U_new = GradientFlow(U_start, (As, ys), 10000, learningRate=1e-4)
+
+U = GradientFlow(U_start, As, ys, 200, learningRate=1e-4)
+print(U)
